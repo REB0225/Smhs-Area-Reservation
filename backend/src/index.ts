@@ -25,10 +25,11 @@ if (admin.default.apps.length === 0) {
 
   if (firebaseKey) {
     // If we have the key as a string (Cloud Deployment)
+    const parsedKey = JSON.parse(firebaseKey);
     admin.default.initializeApp({
-      credential: admin.default.credential.cert(JSON.parse(firebaseKey))
+      credential: admin.default.credential.cert(parsedKey)
     });
-    console.log('Firebase initialized from Environment Variable.');
+    console.log(`Firebase initialized for project: ${parsedKey.project_id}`);
   } else if (fs.existsSync(keyPath)) {
     // If we have the key as a file (Local Development)
     admin.default.initializeApp({

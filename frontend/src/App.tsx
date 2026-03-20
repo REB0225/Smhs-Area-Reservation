@@ -9,7 +9,7 @@ import './App.css';
 
 // Replace this URL with your actual Firebase Function URL after deployment
 // It usually looks like: https://us-central1-YOUR_PROJECT_ID.cloudfunctions.net/api/api
-const API_BASE_URL = '/api'; 
+const API_BASE_URL = 'https://smhs-area-reservation.onrender.com'; 
 // Tip: If you host frontend and backend on different servers, 
 // change the above to the full 'https://...' URL.
 

@@ -182,8 +182,20 @@ apiRouter.post('/admin/users', authUser, async (req, res) => {
 
 apiRouter.delete('/admin/users/:id', authUser, async (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
-  if (req.params.id === 'admin') return res.status(400).json({ error: 'Cannot delete super admin' });
-  await db.collection('users').doc(req.params.id).delete();
+  
+  const targetId = req.params.id;
+  
+  // 1. Prevent deleting the super admin
+  if (targetId === 'admin') {
+    return res.status(400).json({ error: 'Cannot delete super admin' });
+  }
+
+  // 2. Prevent deleting yourself
+  if (targetId === req.user.id) {
+    return res.status(400).json({ error: 'Cannot delete your own account' });
+  }
+
+  await db.collection('users').doc(targetId).delete();
   res.json({ message: 'Deleted' });
 });
 

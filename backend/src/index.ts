@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import { google } from 'googleapis';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
@@ -384,6 +386,6 @@ ensureInitialData();
 app.use('/api', apiRouter);
 
 const port = process.env.PORT || 3001;
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
 });

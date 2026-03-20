@@ -19,28 +19,28 @@ declare global {
 dotenv.config();
 
 // Initialize Firebase Admin with Service Account (Key file or Env Var)
-if (admin.apps.length === 0) {
+if (admin.default.apps.length === 0) {
   const firebaseKey = process.env.FIREBASE_SERVICE_ACCOUNT;
   const keyPath = path.join(process.cwd(), 'google-key.json');
 
   if (firebaseKey) {
     // If we have the key as a string (Cloud Deployment)
-    admin.initializeApp({
-      credential: admin.credential.cert(JSON.parse(firebaseKey))
+    admin.default.initializeApp({
+      credential: admin.default.credential.cert(JSON.parse(firebaseKey))
     });
     console.log('Firebase initialized from Environment Variable.');
   } else if (fs.existsSync(keyPath)) {
     // If we have the key as a file (Local Development)
-    admin.initializeApp({
-      credential: admin.credential.cert(keyPath)
+    admin.default.initializeApp({
+      credential: admin.default.credential.cert(keyPath)
     });
     console.log('Firebase initialized from local google-key.json.');
   } else {
-    admin.initializeApp();
+    admin.default.initializeApp();
     console.log('Firebase initialized with Default Credentials.');
   }
 }
-const db = admin.firestore();
+const db = admin.default.firestore();
 
 const app = express();
 

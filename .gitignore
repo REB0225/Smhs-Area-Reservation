@@ -1,0 +1,13 @@
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# Secrets (DO NOT COMMIT)
+google-key.json
+.env
+publish/
+firebase.json
+.firebaserc
+firestore.rules
+firestore.indexes.json

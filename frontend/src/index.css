@@ -1,0 +1,71 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --text: #6b6375;
+  --text-h: #000000;
+  --bg: #ffffff;
+  --bg-secondary: #f2f2f7; /* Apple's system light gray */
+  --border: #d1d1d6;
+  --code-bg: #f2f2f7;
+  --accent: #007aff; /* Apple Blue */
+  --accent-bg: rgba(0, 122, 255, 0.1);
+  --accent-border: rgba(0, 122, 255, 0.5);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Apple Font Stack */
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Myriad Set Pro", "Helvetica Neue", Helvetica, Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+
+  font: 14px/1.5 var(--sans);
+  letter-spacing: -0.01em;
+  color-scheme: light;
+  color: var(--text-h);
+  background: var(--bg-secondary);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --text: #8e8e93;
+    --text-h: #ffffff;
+    --bg: #1c1c1e;
+    --bg-secondary: #000000;
+    --border: #38383a;
+    --code-bg: #2c2c2e;
+    --accent: #0a84ff;
+    --accent-bg: rgba(10, 132, 255, 0.2);
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-secondary);
+}
+
+#root {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  font-family: var(--heading);
+  font-weight: 600;
+  margin: 0;
+}
+
+h1 {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 20px;
+}

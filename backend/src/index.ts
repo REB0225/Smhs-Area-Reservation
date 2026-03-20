@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { google } from 'googleapis';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
@@ -44,43 +43,6 @@ if (admin.default.apps.length === 0) {
 const db = admin.default.firestore();
 
 const app = express();
-
-// Google Calendar Setup (using environment variables)
-const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID;
-let calendar: any = null;
-
-const initGCal = () => {
-  if (CALENDAR_ID) {
-    try {
-      const firebaseKey = process.env.FIREBASE_SERVICE_ACCOUNT;
-      const keyPath = path.join(process.cwd(), 'google-key.json');
-      
-      let auth;
-      if (firebaseKey) {
-        auth = new google.auth.GoogleAuth({
-          credentials: JSON.parse(firebaseKey),
-          scopes: ['https://www.googleapis.com/auth/calendar'],
-        });
-      } else if (fs.existsSync(keyPath)) {
-        auth = new google.auth.GoogleAuth({
-          keyFile: keyPath,
-          scopes: ['https://www.googleapis.com/auth/calendar'],
-        });
-      } else {
-        auth = new google.auth.GoogleAuth({
-          scopes: ['https://www.googleapis.com/auth/calendar'],
-        });
-      }
-
-      calendar = google.calendar({ version: 'v3', auth });
-      console.log('Google Calendar API initialized.');
-    } catch (e) {
-      console.error('Failed to initialize Google Calendar:', e);
-    }
-  }
-};
-
-initGCal();
 
 app.use(cors({ origin: true })); // Allow all origins for the external frontend
 app.use(express.json());
@@ -241,47 +203,7 @@ apiRouter.get('/reservations', authUser, async (req, res) => {
     .where('status', '==', 'approved')
     .get();
   const localEvents = snapshot.docs.map(doc => doc.data());
-
-  if (!calendar || !CALENDAR_ID) {
-    return res.json(localEvents);
-  }
-
-  try {
-    const timeMin = new Date();
-    timeMin.setMonth(timeMin.getMonth() - 3);
-
-    const response = await calendar.events.list({
-      calendarId: CALENDAR_ID,
-      timeMin: timeMin.toISOString(),
-      singleEvents: true,
-      orderBy: 'startTime',
-      maxResults: 2500
-    });
-
-    const googleEvents = response.data.items?.map((event: any) => ({
-      id: event.id,
-      title: event.summary,
-      start: event.start.dateTime || event.start.date,
-      end: event.end.dateTime || event.end.date,
-      room: event.summary?.split(':')[0] || 'Unknown',
-      purpose: event.summary?.split(':')[1]?.trim() || '',
-      userName: 'Google Calendar',
-      userId: 'google',
-      createdAt: event.created,
-      gcalEventId: event.id,
-      status: 'approved'
-    })) || [];
-
-    const googleEventIds = new Set(googleEvents.map((e: any) => e.id));
-    const validLocalEvents = localEvents.filter((r: any) => !r.gcalEventId || googleEventIds.has(r.gcalEventId));
-    const localGcalIds = new Set(validLocalEvents.map((r: any) => r.gcalEventId).filter(Boolean));
-    const uniqueGoogleEvents = googleEvents.filter((ge: any) => !localGcalIds.has(ge.id));
-
-    res.json([...validLocalEvents, ...uniqueGoogleEvents]);
-  } catch (error) {
-    console.error('Error fetching from Google Calendar:', error);
-    res.json(localEvents);
-  }
+  res.json(localEvents);
 });
 
 apiRouter.post('/reservations', authUser, async (req, res) => {
@@ -362,27 +284,10 @@ apiRouter.post('/reservations', authUser, async (req, res) => {
     }
   }
 
-  // Save and Sync
+  // Save
   const batch = db.batch();
   for (const reservation of reservationsToCreate) {
     const resRef = db.collection('reservations').doc(reservation.id);
-    
-    if (calendar && CALENDAR_ID) {
-      try {
-        const gEvent = {
-          summary: `${reservation.room}: ${reservation.purpose}`,
-          description: `預約者: ${reservation.userName}`,
-          start: { dateTime: parseDate(reservation.start).toISOString() },
-          end: { dateTime: parseDate(reservation.end).toISOString() },
-        };
-        if (reservation.gcalEventId) {
-          await calendar.events.update({ calendarId: CALENDAR_ID, eventId: reservation.gcalEventId, requestBody: gEvent });
-        } else {
-          const result = await calendar.events.insert({ calendarId: CALENDAR_ID, requestBody: gEvent });
-          reservation.gcalEventId = result.data.id;
-        }
-      } catch (e) { console.error('GCal Sync Error:', e); }
-    }
     batch.set(resRef, reservation);
   }
   await batch.commit();
@@ -398,11 +303,6 @@ apiRouter.delete('/reservations/:id', authUser, async (req, res) => {
   const reservation = resDoc.data();
   if (reservation?.userId !== req.user.id && req.user.role !== 'admin') {
     return res.status(403).json({ error: 'Permission denied' });
-  }
-
-  if (calendar && CALENDAR_ID && reservation?.gcalEventId) {
-    try { await calendar.events.delete({ calendarId: CALENDAR_ID, eventId: reservation.gcalEventId }); }
-    catch (e) { console.error('GCal Delete Error:', e); }
   }
 
   await resRef.delete();

@@ -380,8 +380,19 @@ apiRouter.delete('/reservations/:id', authUser, async (req, res) => {
   res.json({ message: 'Deleted' });
 });
 
-// Setup Initial Data on Startup (for first-time deployment)
-ensureInitialData();
+// Setup Initial Data on Startup
+const runStartup = async () => {
+  try {
+    console.log('Running initial data check...');
+    await ensureInitialData();
+    console.log('Initial data check complete.');
+  } catch (error) {
+    console.error('Failed to ensure initial data:', error);
+    // Don't crash the server, just log the error
+  }
+};
+
+runStartup();
 
 app.use('/api', apiRouter);
 

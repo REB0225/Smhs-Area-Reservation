@@ -50,12 +50,28 @@ const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID;
 let calendar: any = null;
 
 const initGCal = () => {
-  // In Firebase Functions, we'll rely on ADC or env vars for the key
   if (CALENDAR_ID) {
     try {
-      const auth = new google.auth.GoogleAuth({
-        scopes: ['https://www.googleapis.com/auth/calendar'],
-      });
+      const firebaseKey = process.env.FIREBASE_SERVICE_ACCOUNT;
+      const keyPath = path.join(process.cwd(), 'google-key.json');
+      
+      let auth;
+      if (firebaseKey) {
+        auth = new google.auth.GoogleAuth({
+          credentials: JSON.parse(firebaseKey),
+          scopes: ['https://www.googleapis.com/auth/calendar'],
+        });
+      } else if (fs.existsSync(keyPath)) {
+        auth = new google.auth.GoogleAuth({
+          keyFile: keyPath,
+          scopes: ['https://www.googleapis.com/auth/calendar'],
+        });
+      } else {
+        auth = new google.auth.GoogleAuth({
+          scopes: ['https://www.googleapis.com/auth/calendar'],
+        });
+      }
+
       calendar = google.calendar({ version: 'v3', auth });
       console.log('Google Calendar API initialized.');
     } catch (e) {

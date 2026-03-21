@@ -7,7 +7,6 @@
     "node": "24.x"
   },
   "scripts": {
-    "build": "tsc"
   },
   "keywords": [],
   "author": "",

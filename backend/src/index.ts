@@ -326,6 +326,13 @@ runStartup();
 app.use('/api', apiRouter);
 
 const port = Number(process.env.PORT) || 3001;
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
-});
+
+// Only listen if not running as a Vercel function
+if (process.env.VERCEL !== '1') {
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+// Export for Vercel
+export default app;

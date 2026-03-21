@@ -9,7 +9,7 @@ import './App.css';
 
 // Replace this URL with your actual Firebase Function URL after deployment
 // It usually looks like: https://us-central1-YOUR_PROJECT_ID.cloudfunctions.net/api/api
-const API_BASE_URL = 'https://smhs-area-reservation.onrender.com'; 
+const API_BASE_URL = 'https://smhs-area-reservation.onrender.com/api'; 
 // Tip: If you host frontend and backend on different servers, 
 // change the above to the full 'https://...' URL.
 
@@ -221,14 +221,16 @@ function AdminPanel({ isOpen, onClose, currentUser, rooms, onRoomsUpdate }: any)
               </div>
               <div className="admin-section" style={{marginTop: '20px'}}>
                 <h3>現有用戶</h3>
-                <ul className="admin-list">
-                  {users.map((u: any) => (
-                    <li key={u.id}>
-                      <span>{u.name} (@{u.username}) - {u.role}</span>
-                      {u.id !== 'admin' && <button onClick={(e) => { e.stopPropagation(); handleDeleteUser(u.id); }} className="btn-text del">刪除</button>}
-                    </li>
-                  ))}
-                </ul>
+                  <ul className="admin-list">
+                    {users.map((u: any) => (
+                      <li key={u.id}>
+                        <span>{u.name} (@{u.username}) - {u.role}</span>
+                        {(u.id !== 'admin' && u.id !== currentUser.id) && (
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteUser(u.id); }} className="btn-text del">刪除</button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
               </div>
             </>
           )}
@@ -266,7 +268,10 @@ function App() {
     try {
       const res = await axios.get(`${API_BASE_URL}/rooms`, { headers: { 'x-user-id': currentUser.id } });
       setRooms(res.data);
-    } catch (e) { console.error(e); }
+    } catch (error: any) { 
+      console.error(error);
+      if (error.response?.status === 401) handleLogout();
+    }
   };
 
   const fetchReservations = async () => {
@@ -280,7 +285,10 @@ function App() {
         end: r.end,
         extendedProps: { ...r }
       })));
-    } catch (error) { console.error(error); }
+    } catch (error: any) { 
+      console.error(error);
+      if (error.response?.status === 401) handleLogout();
+    }
   };
 
   const getRoomColor = (roomName: string) => {

@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "backend/src/index.ts",
+  "main": "api/index.js",
   "engines": {
     "node": "24.x"
   },

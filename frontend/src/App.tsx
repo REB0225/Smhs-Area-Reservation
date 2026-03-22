@@ -240,6 +240,16 @@ function AdminPanel({ isOpen, onClose, currentUser, rooms, onRoomsUpdate }: any)
   );
 }
 
+// --- Sub-component: Loading Screen ---
+function LoadingScreen({ message = '讀取中...' }) {
+  return (
+    <div className="loading-overlay">
+      <div className="spinner"></div>
+      <div className="loading-text">{message}</div>
+    </div>
+  );
+}
+
 // --- Main App Component ---
 function App() {
   const [currentUser, setCurrentUser] = useState<any>(JSON.parse(localStorage.getItem('user') || 'null'));
@@ -251,14 +261,29 @@ function App() {
   const [selectionInfo, setSelectionInfo] = useState<any>(null);
   const [editEvent, setEditEvent] = useState<any>(null);
   const [filterRoom, setFilterRoom] = useState<string>('All');
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialDataFetched, setInitialDataFetched] = useState(false);
   
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPass, setLoginPassword] = useState('');
 
   useEffect(() => {
     if (!currentUser) return;
-    fetchRooms();
-    fetchReservations();
+
+    const loadData = async () => {
+      if (!initialDataFetched) setIsLoading(true);
+      try {
+        await Promise.all([fetchRooms(), fetchReservations()]);
+      } catch (e) {
+        console.error("Initial load failed", e);
+      } finally {
+        setIsLoading(false);
+        setInitialDataFetched(true);
+      }
+    };
+
+    loadData();
+
     const interval = setInterval(fetchReservations, 5000);
     return () => clearInterval(interval);
   }, [currentUser]);
@@ -271,6 +296,7 @@ function App() {
     } catch (error: any) { 
       console.error(error);
       if (error.response?.status === 401) handleLogout();
+      throw error;
     }
   };
 
@@ -288,6 +314,7 @@ function App() {
     } catch (error: any) { 
       console.error(error);
       if (error.response?.status === 401) handleLogout();
+      throw error;
     }
   };
 
@@ -306,15 +333,22 @@ function App() {
 
   const handleLogin = async (e: any) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/login`, { username: loginUsername, password: loginPass });
+      // Reset initial data fetched state on login to trigger the loading screen for the first fetch
+      setInitialDataFetched(false); 
       setCurrentUser(res.data);
       localStorage.setItem('user', JSON.stringify(res.data));
-    } catch (e) { alert("登入失敗: 帳號或密碼錯誤 (請注意大小寫)"); }
+    } catch (e) { 
+      setIsLoading(false);
+      alert("登入失敗: 帳號或密碼錯誤 (請注意大小寫)"); 
+    }
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
+    setInitialDataFetched(false);
     localStorage.removeItem('user');
   };
 
@@ -342,6 +376,7 @@ function App() {
   if (!currentUser) {
     return (
       <div className="login-screen">
+        {isLoading && <LoadingScreen />}
         <div className="login-card">
           <h1>教室借用系統</h1>
           <form onSubmit={handleLogin}>
@@ -356,6 +391,7 @@ function App() {
 
   return (
     <div className="view-wrapper">
+      {isLoading && <LoadingScreen />}
       <header className="app-header">
         <div className="user-info">
           <span>{currentUser.name} (@{currentUser.username}) ({currentUser.role})</span>

@@ -165,7 +165,7 @@ function AdminPanel({ isOpen, onClose, currentUser, rooms, onRoomsUpdate }: any)
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content admin-modal" style={{ '--accent': '#007aff' } as any}>
+      <div className="modal-content admin-modal" style={{ '--accent': '#39acbb' } as any}>
         <div style={{display:'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
           <h2 style={{margin:0}}>系統管理</h2>
           {(!editingRoom && !isAddingRoom) && <button onClick={onClose} className="btn-text">關閉</button>}

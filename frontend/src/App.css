@@ -4,7 +4,7 @@
   --bg: #ffffff;
   --bg-secondary: #f2f2f7;
   --border: #d1d1d6;
-  --accent: #007aff;
+  --accent: #39acbb;
   --accent-bg: rgba(0, 122, 255, 0.1);
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --all-view-color: #3a3a3c;
@@ -18,7 +18,7 @@
     --bg: #1c1c1e;
     --bg-secondary: #000000;
     --border: #38383a;
-    --accent: #0a84ff;
+    --accent: #39acbb;
     --all-view-color: #48484a;
   }
 }
@@ -187,8 +187,8 @@ body {
 }
 
 .custom-event {
-  background-color: color-mix(in srgb, var(--event-color, #007aff), transparent 85%);
-  border-left: 4px solid var(--event-color, #007aff);
+  background-color: color-mix(in srgb, var(--event-color, #39acbb), transparent 85%);
+  border-left: 4px solid var(--event-color, #39acbb);
   border-radius: 4px;
   padding: 2px 4px;
   height: 100%;
@@ -199,12 +199,12 @@ body {
 .event-title {
   font-size: 10px;
   font-weight: 700;
-  color: var(--event-color, #007aff);
+  color: var(--event-color, #39acbb);
 }
 
 .event-owner {
   font-size: 9px;
-  color: var(--event-color, #007aff);
+  color: var(--event-color, #39acbb);
   opacity: 0.8;
 }
 

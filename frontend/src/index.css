@@ -6,12 +6,12 @@
   --text: #6b6375;
   --text-h: #000000;
   --bg: #ffffff;
-  --bg-secondary: #f2f2f7; /* Apple's system light gray */
+  --bg-secondary: #f2f2f7; 
   --border: #d1d1d6;
   --code-bg: #f2f2f7;
-  --accent: #007aff; /* Apple Blue */
-  --accent-bg: rgba(0, 122, 255, 0.1);
-  --accent-border: rgba(0, 122, 255, 0.5);
+  --accent: #39acbb; 
+  --accent-bg: rgba(57, 172, 187, 0.1);
+  --accent-border: rgba(57, 172, 187, 0.5);
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   /* Apple Font Stack */
@@ -36,8 +36,8 @@
     --bg-secondary: #000000;
     --border: #38383a;
     --code-bg: #2c2c2e;
-    --accent: #0a84ff;
-    --accent-bg: rgba(10, 132, 255, 0.2);
+    --accent: #39acbb;
+    --accent-bg: rgba(57, 172, 187, 0.2);
   }
 }
 
